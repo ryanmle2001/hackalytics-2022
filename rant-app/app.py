@@ -1,8 +1,18 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, session, abort
 import json
 
 
 app = Flask(__name__)
+
+def auth_required(function):
+    def wrapper(*argc, **kwargs):
+        if "google_id" not in session:
+            abort('401')
+        else:
+            return function
+    return wrapper
+
+
 
 @app.route("/")
 def login():
@@ -23,6 +33,8 @@ def create_account():
 @app.route('/user/<string:username>')
 def display_user(username):
     return f"Displaying {username}'s account"
+
+
 
 
 
