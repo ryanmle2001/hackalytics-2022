@@ -1,6 +1,6 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, session, jsonify
+import db.database as db
 import json
-
 
 app = Flask(__name__)
 
@@ -17,12 +17,32 @@ def home():
 
 @app.route("/create_account", methods=["GET", "POST"])
 def create_account():
+
     return "Creating accounts"
 
 
 @app.route('/user/<string:username>')
 def display_user(username):
     return f"Displaying {username}'s account"
+
+@app.route('/user/<string:username>/edit-my-profile')
+def edit_my_user(username):
+    return f"Editing {username}'s account"
+
+
+@app.route('/user/<string:username>/view-my-profile')
+def display_my_user(username):
+    return f"Diplaying my account"
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template("page_not_found.html"), 404
+
+
+@app.route('/api')
+def session_api():
+    return jsonify(list(session.keys()))
 
 
 
