@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from pprint import pprint
-import json
+from bson.json_util import dumps
 
 
 # connect to MongoDB, change the << MONGODB URL >> to reflect your own connection string
@@ -19,18 +19,21 @@ User fields
 - Interest: String[] 
 - Rants: rant_id[] 
 '''
-
-def get_user(username):
-    user = db.users.find_one({"username": username})
-    return user
-
 # String username
 def insert_user(user):
-    db.users.insert_one(user)
+    mongodb.users.insert_one(user)
+
+def get_user(username):
+    user = mongodb.users.find_one({"username": username})
+    return user
+
+def get_users():
+    users = mongodb.users.distinct("username")
+    return users
 
 #String username, dict field
 def update_user(username, field):
-    user = db.users.find_one({"username": username})
+    user = mongodb.users.find_one({"username": username})
     key = field.key()
     value = field.value()
     user[key] = value
@@ -40,3 +43,8 @@ def delete_user():
 # Issue the serverStatus command and print the results
 # serverStatusResult=db.command("serverStatus")
 # pprint(serverStatusResult)
+
+
+if __name__ == "__main__":
+    # insert_user({"username": "ryanmle2001"})
+    print(get_users())
