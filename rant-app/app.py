@@ -8,7 +8,6 @@ from pip._vendor import cachecontrol
 import google.auth.transport.requests
 import db.database as db
 import ml.model as model
-import functools
 
 app = Flask(__name__)
 app.secret_key="Hello"
@@ -77,7 +76,9 @@ def new_account():
                 "display_name": request.form["display_name"],
                 "age": request.form['age'],
                 "interests": [],
-                "rant_count": 0}
+                "rant_count": 0,
+                "rants": []
+                }
         db.insert_user(user)
         return redirect(url_for("home"))
     else:
@@ -108,11 +109,11 @@ def upload():
     return redirect(url_for("home"))
 
 
-@app.route('/rant/<string:rant_id>')
-def display_user(rant_id):
+@app.route('/rant/<string:rant_id>', methods=["GET", "POST"])
+def match(rant_id):
     if session["email"][:session["email"].index("@")] not in rant_id:
         return redirect(url_for("home"))
-    match = db.find_match(rant_id)
+    match = db.match_rant(rant_id)
     return render_template("match.html", match=match)
 
 # @app.route('/user/<string:username>')

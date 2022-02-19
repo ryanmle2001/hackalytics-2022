@@ -11,13 +11,12 @@ db = client.rant_app
 
 '''
 User fields
-- Email (primary key): String
-- password ? 
-- First name: String
-- Last name: String
-- Display name: String
-- Interests: String[] 
-- Rants: rant_id[] 
+- email: String
+- first_name: String
+- last_name: String
+- display_name: String
+- interests: String[] 
+- rants: rant_id[] 
 '''
 
 def insert_user(user):
@@ -50,15 +49,15 @@ def delete_user(email):
 
 """
 Rant fields
-Rant ID: String (email + count)
-Email (foreign key): string
-Text: string
-Sentiment score: int
-Category: string[] 
+rant_id: String (email + count)
+email: (foreign key): string
+text: string
+sentiment_score: int
+categories: string[] 
 """
 def insert_rant(rant):
     db.rants.insert_one(rant)
-    update_user(rant["email"], "rants", rant['rantid'])
+    update_user(rant["email"], "rants", rant['rant_id'])
 
 def get_rants(email):
     rants = db.rants.find({"email": email})
@@ -68,8 +67,11 @@ def match_rant(rant_id):
     user_rant = db.rants.find_one({"rant_id": "rant_id"})
     rant_sentiment = user_rant["sentiment_score"]
     rant_categories = user_rant["categories"]
-    matched_rant = db.rants_find_one()
+    matched_rant = db.rants.find_one({"sentiment_score": rant_sentiment, "categories": {"$in": rant_categories}})
 
+    if matched_rant is None:
+        return {"No match"}
+    return matched_rant
 
 if __name__ == "__main__":
     # insert_user({"username": "ryanmle2001"})
