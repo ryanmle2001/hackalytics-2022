@@ -1,4 +1,4 @@
-from flask import Flask, url_for, render_template, request, redirect, abort, jsonify, session
+from flask import Flask, url_for, render_template, request, redirect, abort, jsonify, session, flash, make_response
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 import pathlib
@@ -7,6 +7,8 @@ import requests
 from pip._vendor import cachecontrol
 import google.auth.transport.requests
 import db.database as db
+import ml.model as model
+import functools
 
 app = Flask(__name__)
 app.secret_key="Hello"
@@ -50,22 +52,25 @@ def callback():
         request=token_request,
         audience=GOOGLE_CLIENT_ID
     )
+    session["google_id"] = id_info.get("sub")
+    session["name"] = id_info.get("name")
     session["email"] = id_info['email']
 
     if id_info["email"] in db.get_emails():
-        return redirect(url_for('home'))
+        return redirect('/home')
+    return redirect(url_for("create_account"))
+
+@app.route("/create-account", methods=["GET"])
+def create_account():
+    if "google_id" not in session:
+        return abort(401)  # Authorization required
     return render_template("create_account.html")
 
-
-@app.route("/home", methods=["GET", "POST"])
-def home():
-    return "This is the home page after login + creating a new account"
-
-
-@app.route("/create-account", methods=["GET", "POST"])
-def create_account():
+@app.route("/new-account", methods=["GET", "POST"])
+def new_account():
     username = request.form["username"]
     if username in db.get_users():
+        flash("This username is taken")
         return redirect(url_for("create_account"))
     user = {"email": session["email"],
             "username": request.form["username"],
@@ -76,6 +81,17 @@ def create_account():
     db.insert_user(user)
     return redirect(url_for("home"))
 
+@app.route("/home", methods=["GET", "POST"])
+def home():
+    if "google_id" not in session:
+        return abort(401)  # Authorization required
+
+    return render_template()
+
+
+@app.route('/rant/<int:rantid>')
+def display_user(rantid):
+    return f"Displaying rant for rantid: {ranid}"
 
 @app.route('/user/<string:username>')
 def display_user(username):
@@ -88,7 +104,7 @@ def edit_my_user(username):
 
 @app.route('/user/<string:username>/view-my-profile')
 def display_my_user(username):
-    return f"Diplaying my account"
+    return f"Displaying my account"
 
 
 @app.route('/api')
@@ -99,6 +115,7 @@ def session_api():
 @app.route("/logout")
 def logout():
     session.clear()
+    #TODO: figure out how to clear google auth cookies
     return redirect("/")
 
 
@@ -109,8 +126,6 @@ def page_not_found(error):
 @app.errorhandler(500) #TODO add proper handler here
 def page_not_found(error):
     return render_template("page_not_found.html"), 500
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
