@@ -6,10 +6,7 @@
     {% block metadata %}
     {% endblock %}
 </head>
-
-{% for message in get_flashed_messages() %}
-<h2> {{message }} </h2>
-{% endfor %}
-
+<body>
 {% block main %}
 {% endblock%}
+</body>

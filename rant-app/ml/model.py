@@ -21,6 +21,6 @@ class SentimentAnalysis():
 
 model = SentimentAnalysis()
 
-def analyse(text):
+def analyze(text):
     return model.analyze(text)
 # print(test.analyze("hello I'm tired"))

@@ -29,8 +29,6 @@ def index():
 
 @app.route('/login')
 def login():
-    # if user has account -> go to home page
-    # else -> go to /create-acount
     authorization_url, state = flow.authorization_url()
     session["state"] = state
     return redirect(authorization_url)
@@ -56,46 +54,70 @@ def callback():
     session["name"] = id_info.get("name")
     session["email"] = id_info['email']
 
-    if id_info["email"] in db.get_emails():
+    if session["email"] in db.get_users():
         return redirect('/home')
     return redirect(url_for("create_account"))
 
 @app.route("/create-account", methods=["GET"])
 def create_account():
     if "google_id" not in session:
-        return abort(401)  # Authorization required
+        return session # Authorization required
     return render_template("create_account.html")
 
 @app.route("/new-account", methods=["GET", "POST"])
 def new_account():
-    username = request.form["username"]
-    if username in db.get_users():
-        flash("This username is taken")
-        return redirect(url_for("create_account"))
-    user = {"email": session["email"],
-            "username": request.form["username"],
-            "first_name": request.form["first_name"],
-            "last_name": request.form["last_name"],
-            "display_name": request.form["display_name"],
-            "age": request.form['age']}
-    db.insert_user(user)
-    return redirect(url_for("home"))
+    if request.method == "POST":
+        # username = request.form["username"]
+        # if username in db.get_users():
+        #     flash("This username is taken")
+        #     return redirect(url_for("create_account"))
+        user = {"email": session["email"],
+                "first_name": request.form["first_name"],
+                "last_name": request.form["last_name"],
+                "display_name": request.form["display_name"],
+                "age": request.form['age'],
+                "interests": [],
+                "rant_count": 0}
+        db.insert_user(user)
+        return redirect(url_for("home"))
+    else:
+        return redirect(url_for("index"))
 
-@app.route("/home", methods=["GET", "POST"])
+@app.route("/home")
 def home():
     if "google_id" not in session:
         return abort(401)  # Authorization required
+    rants = db.get_rants(session["email"])
+    return render_template("home.html", rants=rants)
 
-    return render_template()
+@app.route("/upload", methods=["GET","POST"])
+def upload():
+    if request.method == "POST":
+        rant_id = session["email"][:session["email"].index("@")] + '-' + str(db.get_user_field(session["email"], "rant_count"))
+        rant_text = request.form["upload"]
+        rant_score = model.analyze(rant_text)
+        rant_category = []
+        rant = {"rant_id": rant_id,
+                "email": session["email"],
+                "text": rant_text,
+                "sentiment_score": rant_score,
+                "categories": rant_category
+        }
+        db.insert_rant(rant)
+        return redirect(f"/rant/{rant_id}")
+    return redirect(url_for("home"))
 
 
-@app.route('/rant/<int:rantid>')
-def display_user(rantid):
-    return f"Displaying rant for rantid: {ranid}"
+@app.route('/rant/<string:rant_id>')
+def display_user(rant_id):
+    if session["email"][:session["email"].index("@")] not in rant_id:
+        return redirect(url_for("home"))
+    match = db.find_match(rant_id)
+    return render_template("match.html", match=match)
 
-@app.route('/user/<string:username>')
-def display_user(username):
-    return f"Displaying {username}'s account"
+# @app.route('/user/<string:username>')
+# def display_user(username):
+#     return f"Displaying {username}'s account"
 
 @app.route('/user/<string:username>/edit-my-profile')
 def edit_my_user(username):
