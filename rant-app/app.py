@@ -1,9 +1,12 @@
 from flask import Flask, url_for, render_template, request, redirect, abort, jsonify, session
-from google_auth_oauthlib.flow import Flow, google
+from google_auth_oauthlib.flow import Flow
+from google.oauth2 import id_token
 import pathlib
 import os
 import requests
 from pip._vendor import cachecontrol
+import google.auth.transport.requests
+import db.database as db
 
 app = Flask(__name__)
 app.secret_key="Hello"
@@ -78,11 +81,13 @@ def callback():
     cached_session = cachecontrol.CacheControl(request_session)
     token_request = google.auth.transport.requests.Request(session=cached_session)
 
-    id_info = google.oauth2.id_token.verify_oath2_token(
+    id_info = id_token.verify_oauth2_token(
         id_token=credentials._id_token,
         request=token_request,
         audience=GOOGLE_CLIENT_ID
     )
+    return redirect(url_for("home"))
+    #TODO: use id_info['email']
 
 @app.errorhandler(404)
 def page_not_found(error):
@@ -91,7 +96,6 @@ def page_not_found(error):
 @app.errorhandler(500) #TODO add proper handler here
 def page_not_found(error):
     return render_template("page_not_found.html"), 500
-
 
 
 if __name__ == "__main__":
