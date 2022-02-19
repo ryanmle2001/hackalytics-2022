@@ -90,9 +90,11 @@ def edit_my_user(username):
 def display_my_user(username):
     return f"Diplaying my account"
 
+
 @app.route('/api')
 def session_api():
     return jsonify(list(session.keys()))
+
 
 @app.route("/logout")
 def logout():
