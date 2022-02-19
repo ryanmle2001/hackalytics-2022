@@ -35,15 +35,29 @@ def get_emails():
     emails = mongodb.users.distinct("email")
     return emails
 
+#TODO: update this from /username/my-profile endpoint
 def update_user(username, field):
     user = mongodb.users.find_one({"username": username})
+    if type(user[field]) != list:
+        user[field]
     key = field.key()
     value = field.value()
     user[key] = value
-
+#TODO: update this from /username/my-profile endpoint
 def delete_user():
     return False
 
+
+"""
+Rant fields
+Username (foreign key): string
+Text: string
+Sentiment score: int
+Category: string[] 
+"""
+def insert_rant(username, rant):
+    mongodb.rants.insert(rant)
+    update_user(username, rant.id)
 
 if __name__ == "__main__":
     # insert_user({"username": "ryanmle2001"})
