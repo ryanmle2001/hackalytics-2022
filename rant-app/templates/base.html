@@ -3,6 +3,8 @@
         {% block title %}
         {% endblock%}
     </title>
+    {% block metadata %}
+    {% endblock %}
 </head>
 
 {% for message in get_flashed_messages() %}

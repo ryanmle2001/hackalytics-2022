@@ -22,12 +22,41 @@ flow = Flow.from_client_secrets_file(client_secrets_file=client_secrets_file, sc
     redirect_uri="http://127.0.0.1:5000/callback")
 
 @app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route('/login')
 def login():
     # if user has account -> go to home page
     # else -> go to /create-acount
     authorization_url, state = flow.authorization_url()
     session["state"] = state
     return redirect(authorization_url)
+
+@app.route('/callback')
+def callback():
+    flow.fetch_token(authorization_response=request.url)
+
+    if not session["state"] == request.args["state"]:
+        abort(500)
+
+    credentials = flow.credentials
+    request_session = requests.session()
+    cached_session = cachecontrol.CacheControl(request_session)
+    token_request = google.auth.transport.requests.Request(session=cached_session)
+
+    id_info = id_token.verify_oauth2_token(
+        id_token=credentials._id_token,
+        request=token_request,
+        audience=GOOGLE_CLIENT_ID
+    )
+    session["email"] = id_info['email']
+
+    if id_info["email"] in db.get_emails():
+        return redirect(url_for('home'))
+    return redirect(url_for("create-account"))
+
 
 @app.route("/home", methods=["GET", "POST"])
 def home():
@@ -43,7 +72,8 @@ def new_account():
     username = request.form["username"]
     if username in db.get_users():
         return redirect(url_for("create_account"))
-    user = {"username": request.form["username"],
+    user = {"email": session["email"],
+            "username": request.form["username"],
             "first_name": request.form["first_name"],
             "last_name": request.form["last_name"],
             "display_name": request.form["display_name"],
@@ -68,26 +98,6 @@ def display_my_user(username):
 @app.route('/api')
 def session_api():
     return jsonify(list(session.keys()))
-
-@app.route('/callback')
-def callback():
-    flow.fetch_token(authorization_response=request.url)
-
-    if not session["state"] == request.args["state"]:
-        abort(500)
-
-    credentials = flow.credentials
-    request_session = requests.session()
-    cached_session = cachecontrol.CacheControl(request_session)
-    token_request = google.auth.transport.requests.Request(session=cached_session)
-
-    id_info = id_token.verify_oauth2_token(
-        id_token=credentials._id_token,
-        request=token_request,
-        audience=GOOGLE_CLIENT_ID
-    )
-    return redirect(url_for("home"))
-    #TODO: use id_info['email']
 
 @app.errorhandler(404)
 def page_not_found(error):
