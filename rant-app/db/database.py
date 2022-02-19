@@ -6,9 +6,8 @@ import json
 # connect to MongoDB, change the << MONGODB URL >> to reflect your own connection string
 client = MongoClient("localhost:27017")
 
-#db=client.admin
 # connect to database
-db = client.rant_app
+mongodb = client.rant_app
 
 '''
 User fields
@@ -36,7 +35,6 @@ def update_user(username, field):
     value = field.value()
     user[key] = value
 
-def update_user_post(username,
 def delete_user():
     return False
 # Issue the serverStatus command and print the results
