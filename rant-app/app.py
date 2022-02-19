@@ -4,21 +4,33 @@ import json
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def login():
-    # if user has account -> go to home page
-    # else -> go to /create-acount
-    return "This is the main page - login"
+    if True: #TODO: replace with Google Auth -> if no account already
+        return  redirect(url_for('create_account'))
+    return redirect(url_for('home'))
 
 @app.route("/home", methods=["GET", "POST"])
 def home():
     return "This is the home page after login + creating a new account"
 
 
-@app.route("/create_account", methods=["GET", "POST"])
+@app.route("/create-account", methods=["GET", "POST"])
 def create_account():
+    return render_template("create_account.html")
 
-    return "Creating accounts"
+@app.route("/new-account", methods=["GET", "POST"])
+def new_account():
+    username = request.form["username"]
+    if username in db.get_users():
+        return redirect(url_for("create_account"))
+    user = {"username": request.form["username"],
+            "first_name": request.form["first_name"],
+            "last_name": request.form["last_name"],
+            "display_name": request.form["display_name"],
+            "age": request.form['age']}
+    db.insert_user(user)
+    return redirect(url_for("home"))
 
 
 @app.route('/user/<string:username>')
