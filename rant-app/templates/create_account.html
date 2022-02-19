@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %} Create Account {% endblock %}
+
+{% block main %}
+
+<h1> Create Account </h1>
+
+<form action="new-account" method="post">
+    <label for="username"> Username </label>
+        <input type="text" name="username" value="" required>
+    <br>
+    <label for="first_name">  First name </label>
+        <input type="text" name="first_name" value="" required>
+    <br>
+    <label for="last_name">  Last name </label>
+        <input type="text" name="last_name" value="" required>
+    <br>
+    <label for="display_name">  Display name </label>
+        <input type="text" name="display_name" value="" required>
+    <br>
+    <label for="age">  Age </label>
+        <input type="number" name="age" value="" required>
+    <br>
+    <input type="submit" value="submit">
+</form>
+
+{% endblock%}

@@ -5,18 +5,6 @@ from flask import Flask, render_template, request, redirect, abort, jsonify, ses
 from google_auth_oauthlib.flow import Flow
 
 app = Flask(__name__)
-app.secret_key="Hello"
-
-GOOGLE_CLIENT_ID = "829965262603-houdc4q9b3uohkn7t6v97mtic4ehg7og.apps.googleusercontent.com"
-
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-
-client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
-
-flow = Flow.from_client_secrets_file(client_secrets_file=client_secrets_file, scopes=[
-    "https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    redirect_uri="http://127.0.0.1:5000/callback"
-                                     )
 
 @app.route("/")
 def login():
@@ -31,10 +19,22 @@ def home():
     return "This is the home page after login + creating a new account"
 
 
-@app.route("/create_account", methods=["GET", "POST"])
+@app.route("/create-account", methods=["GET", "POST"])
 def create_account():
+    return render_template("create_account.html")
 
-    return "Creating accounts"
+@app.route("/new-account", methods=["GET", "POST"])
+def new_account():
+    username = request.form["username"]
+    if username in db.get_users():
+        return redirect(url_for("create_account"))
+    user = {"username": request.form["username"],
+            "first_name": request.form["first_name"],
+            "last_name": request.form["last_name"],
+            "display_name": request.form["display_name"],
+            "age": request.form['age']}
+    db.insert_user(user)
+    return redirect(url_for("home"))
 
 
 @app.route('/user/<string:username>')
