@@ -25,7 +25,6 @@ flow = Flow.from_client_secrets_file(client_secrets_file=client_secrets_file, sc
 def index():
     return render_template("index.html")
 
-
 @app.route('/login')
 def login():
     # if user has account -> go to home page
@@ -55,7 +54,7 @@ def callback():
 
     if id_info["email"] in db.get_emails():
         return redirect(url_for('home'))
-    return redirect(url_for("create-account"))
+    return render_template("create_account.html")
 
 
 @app.route("/home", methods=["GET", "POST"])
@@ -65,10 +64,6 @@ def home():
 
 @app.route("/create-account", methods=["GET", "POST"])
 def create_account():
-    return render_template("create_account.html")
-
-@app.route("/new-account", methods=["GET", "POST"])
-def new_account():
     username = request.form["username"]
     if username in db.get_users():
         return redirect(url_for("create_account"))
@@ -99,6 +94,12 @@ def display_my_user(username):
 def session_api():
     return jsonify(list(session.keys()))
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template("page_not_found.html"), 404
@@ -106,6 +107,7 @@ def page_not_found(error):
 @app.errorhandler(500) #TODO add proper handler here
 def page_not_found(error):
     return render_template("page_not_found.html"), 500
+
 
 
 if __name__ == "__main__":

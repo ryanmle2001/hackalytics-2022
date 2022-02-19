@@ -31,6 +31,9 @@ def get_users():
     users = mongodb.users.distinct("username")
     return users
 
+def get_emails():
+    emails = mongodb.users.distinct("email")
+    return emails
 #String username, dict field
 def update_user(username, field):
     user = mongodb.users.find_one({"username": username})
