@@ -61,7 +61,7 @@ def insert_rant(rant):
 
 def get_rants(email):
     rants = db.rants.find({"email": email})
-    return dumps(list(rants))
+    return list(rants)
 
 def match_rant(rant_id):
     user_rant = db.rants.find_one({"rant_id": "rant_id"})
@@ -79,5 +79,9 @@ if __name__ == "__main__":
     # update_user("ryanmle2001@gmail.com", "interests", ["math"])
     # update_user("ryanmle2001@gmail.com", "interests", "sports")
     # print(get_user_field('ryanmle2001@gmail.com', "age"))
-    print(get_rants("ryanmle2001@gmail.com"))
+    # print(get_rants("ryanmle2001@gmail.com"))
+    rants = get_rants("ryanmle2001@gmail.com")
+    for rant in rants:
+        print(rant["email"])
+
 

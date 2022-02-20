@@ -4,29 +4,51 @@
 
 {% block main %}
 
-<h1> Home Page </h1>
-
-<form action="upload" method="post">
-    <label for="upload"> Rants </label>
-        <input type="text" name="upload" value="Rant" required>
-    <br>
-    <label for-="category"> Categories </label>
-        <input type="checkbox" name="category" id="category1" value="">
-        <label for="category1"> School </label><br>
-        <input type="checkbox" name="category" id="category2" value="">
-        <label for="category2"> Work </label><br>
-        <input type="checkbox"  name="category" id="category3" value="">
-        <label for="category3"> Relationships </label><br>
-    <input type="submit" value="Post">
-</form>
-
-{% if rants %}
-<h2> Previous rants  </h2>
-<ul>
-    {% for rant in rants %}
-    <li>{{ rant }}</li>
+<section class="container text-dark">
+    <div class="row">
+        <div class="col-sm-4">
+            <h1> Home Page </h1>
+        </div>
+        <div class="col-sm-4">
+        </div>
+        <div class="col-sm-4">
+            <h1> <a href="{{ url_for('home') }}"> My Profile</a></h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <form action="upload" method="post">
+                <label for="upload"> Rants </label>
+                    <input type="text" name="upload" value="Rant" required>
+                <br>
+                <label for-="category"> Categories </label>
+                <br>
+                    <input type="checkbox" name="category" id="category1" value="">
+                    <label for="category1"> School </label><br>
+                    <input type="checkbox" name="category" id="category2" value="">
+                    <label for="category2"> Work </label><br>
+                    <input type="checkbox"  name="category" id="category3" value="">
+                    <label for="category3"> Relationships </label><br>
+                <input type="submit" value="Post">
+            </form>
+        </div>
+    </div>
+</section>
+<section class="container text-dark">
+    <div class="row">
+        <div class="col-sm-12">
+            <h2> Previous rants </h2>
+        </div>
+    </div>
+    {% if rants %}
+    {% for rant in rants | reverse %}
+    <div class="row">
+        <div class="col-sm-12">
+            <p> {{ rant }} <p>
+        </div>
+    </div>
     {% endfor %}
-</ul>
-{% endif %}
+    {% endif %}
+</section>
 
 {% endblock%}

@@ -94,7 +94,8 @@ def home():
 @app.route("/upload", methods=["GET","POST"])
 def upload():
     if request.method == "POST":
-        rant_id = session["email"][:session["email"].index("@")] + '-' + str(db.get_user_field(session["email"], "rant_count"))
+        rant_count = db.get_user_field(session["email"], "rant_count")
+        rant_id = session["email"][:session["email"].index("@")] + '-' + str(rant_count)
         rant_text = request.form["upload"]
         rant_score = model.analyze(rant_text)
         rant_category = []
@@ -105,6 +106,7 @@ def upload():
                 "categories": rant_category
         }
         db.insert_rant(rant)
+        db.update_user(session["email"], "rant_count", rant_count + 1)
         return redirect(f"/rant/{rant_id}")
     return redirect(url_for("home"))
 
@@ -125,8 +127,9 @@ def edit_my_user(username):
     return f"Editing {username}'s account"
 
 
-@app.route('/user/<string:username>/view-my-profile')
-def display_my_user(username):
+@app.route('/user/<string:email>/view-my-profile')
+def display_my_user(email):
+
     return f"Displaying my account"
 
 

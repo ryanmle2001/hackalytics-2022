@@ -3,26 +3,35 @@
 {% block title %} Create Account {% endblock %}
 
 {% block main %}
-
-<h1> Create Account </h1>
+<section class="container text-dark">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1> Create Account </h1>
+        </div>
+    </div>
+</section>
 {% for message in get_flashed_messages() %}
 <p> {{message }} <p/>
 {% endfor %}
-
-<form action="new-account" method="post">
-    <label for="first_name">  First name </label>
-        <input type="text" name="first_name" value="" required>
-    <br>
-    <label for="last_name">  Last name </label>
-        <input type="text" name="last_name" value="" required>
-    <br>
-    <label for="display_name">  Display name </label>
-        <input type="text" name="display_name" value="" required>
-    <br>
-    <label for="age">  Age </label>
-        <input type="number" name="age" value="" required>
-    <br>
-    <input type="submit" value="submit">
-</form>
-
+<section class="container text-dark">
+    <div class="row">
+        <div class="col-sm-12">
+            <form action="new-account" method="post">
+                <label for="first_name">  First name </label>
+                    <input type="text" name="first_name" value="" required>
+                <br>
+                <label for="last_name">  Last name </label>
+                    <input type="text" name="last_name" value="" required>
+                <br>
+                <label for="display_name">  Display name </label>
+                    <input type="text" name="display_name" value="" required>
+                <br>
+                <label for="age">  Age </label>
+                    <input type="number" name="age" value="" required>
+                <br>
+                <input type="submit" value="submit">
+            </form>
+        </div>
+    </div>
+</section>
 {% endblock%}
